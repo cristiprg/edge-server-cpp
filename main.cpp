@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
@@ -9,8 +10,12 @@ struct SimplePoint {float x, y, z;};
 
 int main()
 {
+
+begin:
+
   try
   {
+    const int HUMAN_DETECTED = 1;
     boost::asio::io_service io_service;
     cout << "Waiting for connection ... ";
     fflush(stdout);
@@ -57,11 +62,22 @@ int main()
       // Copy the point cloud into a vector
       vector<SimplePoint> pointCloud(len / 12);
       memcpy(&pointCloud[0], &buf_point_cloud[0], len);
+
+      // Detect human?
+      int yes_no = (rand() % 10 == 0);
+      // if (yes_no) {
+        // cout << "Sending signal back!" << endl;
+        // fflush(stdout);
+        cout << "human_Detected = " << yes_no << endl;
+        boost::asio::write(socket, boost::asio::buffer(&yes_no, sizeof(yes_no)));
+      // }
     }
   }
   catch (std::exception& e)
   {
     std::cerr << e.what() << std::endl;
   }
-}
 
+  std::cerr << "Finished application. Restarting ..." << endl;
+  goto begin;
+}
